@@ -1,0 +1,47 @@
+
+*SE388 - Program Name, screen 9000.
+PROCESS BEFORE OUTPUT.
+MODULE STATUS_9000.
+CALL SUBSCREEN SUB1 INCLUDING SY-REPID '0100'.
+CALL SUBSCREEN SUB2 INCLUDING SY-REPID '0200'.
+
+PROCESS AFTER INPUT.
+CALL SUBSCREEN SUB1.
+CALL SUBSCREEN SUB2.
+MODULE USER_COMMAND_9000.
+
+*SE51 - 
+PROGRAM ZKA_MP4.
+CONTROLS ZTAB1 TYPE TABSTRIP.
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_9000  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_9000 OUTPUT.
+SET PF-STATUS 'ZBUTTON'.
+*  SET TITLEBAR 'xxx'.
+ENDMODULE.
+
+
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9000  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9000 INPUT.
+CASE SY-UCOMM.
+  WHEN 'BACK'.
+   LEAVE PROGRAM.
+  WHEN 'AAAA'.
+    ZTAB1-ACTIVETAB = 'AAAA'.
+  WHEN 'BBBB'.
+    ZTAB1-ACTIVETAB = 'BBBB'.
+ENDCASE.
+
+
+ENDMODULE.
+
+
+*Create a TransactionCode
