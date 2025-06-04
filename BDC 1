@@ -1,0 +1,80 @@
+*******Batch Data Conversion********** Conversion of Non -Sap into SAP.***************
+
+report ZKV_BDC01
+       no standard page heading line-size 255.
+
+TYPES: BEGIN OF ty,
+        pgid TYPE zpgtable-pgid,
+        pgname TYPE zpgtable-pgname,
+        pgroom TYPE zpgtable-pgroom,
+        pgphone TYPE zpgtable-pgphone,
+      END OF ty.
+
+DATA: ITE TYPE TABLE OF TY,
+      WAE TYPE TY.
+
+include bdcrecx1.
+PARAMETERS: P_FILE TYPE IBIPPARMS-PATH,
+           PMODE TYPE C LENGTH 1 DEFAULT 'A'.
+                                                          .
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_FILE.
+
+CALL FUNCTION 'F4_FILENAME'
+
+ IMPORTING
+   FILE_NAME           = P_FILE.
+           .
+
+
+start-of-selection.
+
+DATA: TEXT TYPE TRUXS_T_TEXT_DATA.
+CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+  EXPORTING
+*   I_FIELD_SEPERATOR          =
+   I_LINE_HEADER              = 'X'
+    i_tab_raw_data             = TEXT
+    i_filename                 = P_FILE
+  TABLES
+    i_tab_converted_data       = ITE
+* EXCEPTIONS
+*   CONVERSION_FAILED          = 1
+*   OTHERS                     = 2
+          .
+IF sy-subrc <> 0.
+* Implement suitable error handling here
+ENDIF.
+
+
+perform open_group.
+
+LOOP AT ITE INTO WAE.
+
+perform bdc_dynpro      using 'ZKA_MP4' '9000'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=AAAA'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'WA1-PGPHONE'.
+perform bdc_field       using 'WA1-PGID'
+                              WAE-PGID. "'201'.
+perform bdc_field       using 'WA1-PGNAME'
+                              WAE-PGNAME."'MAHI'.
+perform bdc_field       using 'WA1-PGROOM'
+                              WAE-PGROOM."'507'.
+perform bdc_field       using 'WA1-PGPHONE'
+                              WAE-PGPHONE."'8743947589'.
+perform bdc_dynpro      using 'ZKA_MP4' '9000'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '=SAVE'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'WA1-PGID'.
+perform bdc_dynpro      using 'ZKA_MP4' '9000'.
+perform bdc_field       using 'BDC_OKCODE'
+                              '/EBACK'.
+perform bdc_field       using 'BDC_CURSOR'
+                              'WA1-PGID'.
+perform bdc_transaction using 'ZKA_MP4'.
+
+CLEAR WAE.
+ENDLOOP.
+perform close_group.
