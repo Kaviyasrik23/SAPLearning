@@ -1,0 +1,57 @@
+PROGRAM ZKV_MP1.
+TABLES: ZKPEMPLOYEE.
+DATA: IT TYPE TABLE OF ZKPEMPLOYEE,
+      WA TYPE ZKPEMPLOYEE,
+      WA1 TYPE ZKPEMPLOYEE.
+
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_9001  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_9001 OUTPUT.
+SET PF-STATUS 'ZBUTTON'.
+*  SET TITLEBAR 'xxx'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9001  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_9001 INPUT.
+CASE SY-UCOMM.
+  WHEN 'BACK'.
+    LEAVE PROGRAM.
+
+  WHEN 'AAAA'.
+    WA1-EMP_ID = WA-EMP_ID.
+    WA1-EMP_NAME = WA-EMP_NAME.
+    WA1-PROJ_ID = WA-PROJ_ID.
+    WA1-DEPT_ID = WA-DEPT_ID.
+    WA1-EMP_SALARY = WA-EMP_SALARY.
+
+    MODIFY ZKPEMPLOYEE FROM WA1.
+
+    IF SY-SUBRC = 0.
+      MESSAGE 'SAVED SUCCESSFULLY' TYPE 'S'.
+    ELSE.
+      MESSAGE 'NOT SAVED' TYPE 'E'.
+     ENDIF.
+
+  WHEN 'BBBB'.
+    CLEAR WA.
+
+  WHEN 'CCCC'.
+    CALL TRANSACTION 'SE11'.
+
+ENDCASE.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_9000  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE status_9000 OUTPUT.
+  SET PF-STATUS 'ZBUT'.
+*  SET TITLEBAR 'xxx'.
+ENDMODULE.
